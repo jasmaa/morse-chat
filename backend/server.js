@@ -11,16 +11,22 @@ app.get('/', (req, res) => {
 
 io.sockets.on('connection', socket => {
 
-    socket.on('offer', e => {
-        console.log(e);
+    //socket.emit('assign', { polite: true }); // Assign politeness
+
+    socket.on('description', data => {
+        socket.broadcast.to(data.socketID).emit('description', data); // Send to specific user
     });
 
-    socket.on('candidate', e => {
-        console.log(e);
+    socket.on('candidate', data => {
+        socket.broadcast.to(data.socketID).emit('candidate', data);
+    });
+
+    socket.on('peerList', () => {
+        io.emit('peerList', Object.keys(io.sockets.clients().sockets));
     });
 
     socket.on('disconnect', () => {
-        console.log('User disconnected');
+        io.emit('peerList', Object.keys(io.sockets.clients().sockets));
     });
 });
 

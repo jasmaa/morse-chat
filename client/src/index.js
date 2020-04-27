@@ -1,23 +1,30 @@
 import Signaler from './signaler';
 
 // UI
+const targetPeerInput = document.getElementById('targetPeer');
+const connectBtn = document.getElementById('connectBtn');
 const sendBtn = document.getElementById('sendBtn');
+const peerList = document.getElementById('peerList')
 
 // WebRTC
-
 const servers = null;
 const pc = new RTCPeerConnection(servers);
 const signaler = new Signaler();
 
+signaler.setOnPeerList(data => {
+    peerList.innerHTML = JSON.stringify(data);
+});
+
 const sendChannel = pc.createDataChannel('morse');
 
+// Offer
 let makingOffer = false;
 
-pc.onnegotiationneeded = async () => {
+connectBtn.onclick = async () => {
     try {
         makingOffer = true;
         await pc.setLocalDescription();
-        signaler.sendOffer(pc.localDescription);
+        signaler.sendDescription(targetPeerInput.value, pc.localDescription);
     } catch (err) {
         console.error(err);
     } finally {
@@ -26,71 +33,48 @@ pc.onnegotiationneeded = async () => {
 }
 
 pc.onicecandidate = ({ candidate }) => {
-    signaler.sendCandidate(candidate);
+    signaler.sendCandidate(targetPeerInput.value, candidate);
 }
 
-/*
-// TEMP: Negotiate connection for both local and remote
-localConnection.createOffer()
-    .then(desc => {
+// Messaging
+let ignoreOffer = false;
+const polite = true; // TODO: set this from server
 
-        console.log(`Offer from local connection\n${desc.sdp}`);
+signaler.setOnDescription(async ({ socketID, description }) => {
 
-        localConnection.setLocalDescription(desc);
-        remoteConnection.setRemoteDescription(desc);
-    })
-    .then(() => remoteConnection.createAnswer())
-    .then(desc => {
+    console.log(description);
 
-        console.log(`Answer from remote connection\n${desc.sdp}`);
+    try {
+        const offerCollision = description.type === 'offer' && (makingOffer || pc.signalingState !== 'stable');
 
-        localConnection.setRemoteDescription(desc);
-        remoteConnection.setLocalDescription(desc)
-    });
+        console.log(offerCollision);
 
+        // Ignore offer if impolite when collision occurs
+        ignoreOffer = !polite && offerCollision;
+        if (ignoreOffer) return;
 
+        await pc.setRemoteDescription(description);
+        if (description.type === 'offer') {
+            await pc.setLocalDescription();
+            signaler.sendDescription(socketID, pc.localDescription);
+        }
 
-remoteConnection.onicecandidate = e => {
-    localConnection.addIceCandidate(e.candidate)
-        .then(() => {
-            console.log('ICE candidate added successfully');
-        }, err => {
-            console.log(`Failed to add ICE candidate: ${err}`);
-        });
-}
-
-localConnection.onicecandidate = e => {
-    remoteConnection.addIceCandidate(e.candidate)
-        .then(() => {
-            console.log('ICE candidate added successfully');
-        }, err => {
-            console.log(`Failed to add ICE candidate: ${err}`);
-        });
-}
-
-
-sendChannel.onopen = () => {
-    console.log(`Send: ${sendChannel.readyState}`);
-}
-
-sendBtn.onclick = e => {
-    if (sendChannel.readyState === 'open') {
-        sendChannel.send('Hi there')
+    } catch (err) {
+        console.error(err);
     }
-}
+});
 
-remoteConnection.ondatachannel = e => {
+signaler.setOnCandidate(async ({ candidate }) => {
 
-    receiveChannel = e.channel;
+    console.log(candidate);
 
-    receiveChannel.onopen = () => {
-        console.log(`Receive: ${receiveChannel.readyState}`);
+    try {
+        try {
+            await pc.addIceCandidate(candidate);
+        } catch (err) {
+            if (!ignoreOffer) throw err;
+        }
+    } catch (err) {
+        console.error(err);
     }
-    receiveChannel.onclose = () => {
-        console.log(`Receive: ${receiveChannel.readyState}`);
-    }
-    receiveChannel.onmessage = e => {
-        console.log(e.data);
-    }
-}
-*/
+});
