@@ -1,12 +1,35 @@
+import Signaler from './signaler';
 
+// UI
 const sendBtn = document.getElementById('sendBtn');
 
+// WebRTC
+
 const servers = null;
-const localConnection = new RTCPeerConnection(servers);
-const remoteConnection = new RTCPeerConnection(servers);
+const pc = new RTCPeerConnection(servers);
+const signaler = new Signaler();
 
-const sendChannel = localConnection.createDataChannel('morse');
+const sendChannel = pc.createDataChannel('morse');
 
+let makingOffer = false;
+
+pc.onnegotiationneeded = async () => {
+    try {
+        makingOffer = true;
+        await pc.setLocalDescription();
+        signaler.sendOffer(pc.localDescription);
+    } catch (err) {
+        console.error(err);
+    } finally {
+        makingOffer = false;
+    }
+}
+
+pc.onicecandidate = ({ candidate }) => {
+    signaler.sendCandidate(candidate);
+}
+
+/*
 // TEMP: Negotiate connection for both local and remote
 localConnection.createOffer()
     .then(desc => {
@@ -26,6 +49,7 @@ localConnection.createOffer()
     });
 
 
+
 remoteConnection.onicecandidate = e => {
     localConnection.addIceCandidate(e.candidate)
         .then(() => {
@@ -43,6 +67,7 @@ localConnection.onicecandidate = e => {
             console.log(`Failed to add ICE candidate: ${err}`);
         });
 }
+
 
 sendChannel.onopen = () => {
     console.log(`Send: ${sendChannel.readyState}`);
@@ -68,3 +93,4 @@ remoteConnection.ondatachannel = e => {
         console.log(e.data);
     }
 }
+*/

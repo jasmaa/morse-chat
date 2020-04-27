@@ -11,8 +11,12 @@ app.get('/', (req, res) => {
 
 io.sockets.on('connection', socket => {
 
-    socket.on('description', () => {
-        console.log('Description');
+    socket.on('offer', e => {
+        console.log(e);
+    });
+
+    socket.on('candidate', e => {
+        console.log(e);
     });
 
     socket.on('disconnect', () => {
