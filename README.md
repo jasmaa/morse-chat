@@ -1,3 +1,3 @@
-# Morse WebRTC
+# Morse Chat
 
-Morse code with WebRTC
+Morse code chatting with WebRTC
