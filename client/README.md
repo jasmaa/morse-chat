@@ -7,5 +7,5 @@ Web client
     yarn install
     yarn build
 
-     npm install http-server -g
-     http-server dist
+    npm install http-server -g
+    http-server dist

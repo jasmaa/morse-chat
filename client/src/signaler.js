@@ -7,18 +7,30 @@ export default class Signaler {
 
         this.socket.on('connect', () => {
             console.log('connected!');
-            this.socket.emit('peerList');
         });
         this.socket.on('disconnect', () => {
             console.log('disconnected!');
         });
+
+        this.socket.on('join', data => {
+
+            console.log(data);
+
+            if (data.isJoin) {
+                this.polite = data.polite;
+            }
+        });
     }
 
-    sendDescription(socketID, description) {
-        return this.socket.emit('description', { socketID, description });
+    sendJoin(room) {
+        return this.socket.emit('join', { room });
     }
-    sendCandidate(socketID, candidate) {
-        return this.socket.emit('candidate', { socketID, candidate })
+
+    sendDescription(room, description) {
+        return this.socket.emit('description', { room, description });
+    }
+    sendCandidate(room, candidate) {
+        return this.socket.emit('candidate', { room, candidate })
     }
 
     setOnDescription(cb) {
@@ -26,8 +38,5 @@ export default class Signaler {
     }
     setOnCandidate(cb) {
         this.socket.on('candidate', cb);
-    }
-    setOnPeerList(cb) {
-        this.socket.on('peerList', cb);
     }
 }

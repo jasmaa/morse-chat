@@ -1,30 +1,30 @@
 import Signaler from './signaler';
 
 // UI
-const targetPeerInput = document.getElementById('targetPeer');
+const roomInput = document.getElementById('roomInput');
 const connectBtn = document.getElementById('connectBtn');
+const messageInput = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
-const peerList = document.getElementById('peerList')
 
 // WebRTC
 const servers = null;
 const pc = new RTCPeerConnection(servers);
 const signaler = new Signaler();
 
-signaler.setOnPeerList(data => {
-    peerList.innerHTML = JSON.stringify(data);
-});
-
 const sendChannel = pc.createDataChannel('morse');
 
-// Offer
+// Negotiation
+
 let makingOffer = false;
 
 connectBtn.onclick = async () => {
+
+    signaler.sendJoin(roomInput.value);
+
     try {
         makingOffer = true;
         await pc.setLocalDescription();
-        signaler.sendDescription(targetPeerInput.value, pc.localDescription);
+        signaler.sendDescription(roomInput.value, pc.localDescription);
     } catch (err) {
         console.error(err);
     } finally {
@@ -33,14 +33,13 @@ connectBtn.onclick = async () => {
 }
 
 pc.onicecandidate = ({ candidate }) => {
-    signaler.sendCandidate(targetPeerInput.value, candidate);
+    signaler.sendCandidate(roomInput.value, candidate);
 }
 
-// Messaging
-let ignoreOffer = false;
-const polite = true; // TODO: set this from server
 
-signaler.setOnDescription(async ({ socketID, description }) => {
+let ignoreOffer = false;
+
+signaler.setOnDescription(async ({ room, description }) => {
 
     console.log(description);
 
@@ -50,13 +49,13 @@ signaler.setOnDescription(async ({ socketID, description }) => {
         console.log(offerCollision);
 
         // Ignore offer if impolite when collision occurs
-        ignoreOffer = !polite && offerCollision;
+        ignoreOffer = !signaler.polite && offerCollision;
         if (ignoreOffer) return;
 
         await pc.setRemoteDescription(description);
         if (description.type === 'offer') {
             await pc.setLocalDescription();
-            signaler.sendDescription(socketID, pc.localDescription);
+            signaler.sendDescription(room, pc.localDescription);
         }
 
     } catch (err) {
@@ -78,3 +77,16 @@ signaler.setOnCandidate(async ({ candidate }) => {
         console.error(err);
     }
 });
+
+// P2P messaging
+sendBtn.onclick = () => {
+    sendChannel.send(messageInput.value);
+}
+pc.ondatachannel = e => {
+
+    const receiveChannel = e.channel;
+
+    receiveChannel.onmessage = e => {
+        console.log(e.data);
+    }
+} 

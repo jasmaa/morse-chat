@@ -11,22 +11,45 @@ app.get('/', (req, res) => {
 
 io.sockets.on('connection', socket => {
 
-    //socket.emit('assign', { polite: true }); // Assign politeness
+    socket.on('join', data => {
+
+        console.log(socket);
+
+        const numClients =
+            data.room && data.room in io.sockets.adapter.rooms
+                ? io.sockets.adapter.rooms[data.room].length
+                : 0;
+
+        if (numClients === 0) {
+            socket.join(data.room);
+            socket.emit('join', { isJoin: true, polite: true });
+        } else if (numClients === 1) {
+            socket.join(data.room);
+            socket.emit('join', { isJoin: true, polite: false });
+        } else {
+            socket.emit('join', { isJoin: false });
+        }
+    });
+
 
     socket.on('description', data => {
-        socket.broadcast.to(data.socketID).emit('description', data); // Send to specific user
+        if (data.room && data.room in io.sockets.adapter.rooms
+            && socket.id in io.sockets.adapter.rooms[data.room].sockets) {
+
+            socket.broadcast.in(data.room).emit('description', data); // Send to peer
+        }
     });
 
     socket.on('candidate', data => {
-        socket.broadcast.to(data.socketID).emit('candidate', data);
-    });
-
-    socket.on('peerList', () => {
-        io.emit('peerList', Object.keys(io.sockets.clients().sockets));
+        if (data.room && data.room in io.sockets.adapter.rooms
+            && socket.id in io.sockets.adapter.rooms[data.room].sockets) {
+                
+            socket.broadcast.in(data.room).emit('candidate', data);
+        }
     });
 
     socket.on('disconnect', () => {
-        io.emit('peerList', Object.keys(io.sockets.clients().sockets));
+        console.log('Disconnected');
     });
 });
 
