@@ -1,4 +1,5 @@
 import Signaler from './signaler';
+import MorsePlayer from './morse';
 
 // UI
 const roomInput = document.getElementById('roomInput');
@@ -11,9 +12,7 @@ const servers = null;
 const pc = new RTCPeerConnection(servers);
 const signaler = new Signaler();
 
-const sendChannel = pc.createDataChannel('morse');
-
-// Negotiation
+// Offer negotiation
 
 let makingOffer = false;
 
@@ -36,6 +35,7 @@ pc.onicecandidate = ({ candidate }) => {
     signaler.sendCandidate(roomInput.value, candidate);
 }
 
+// Answer negotiation
 
 let ignoreOffer = false;
 
@@ -45,8 +45,6 @@ signaler.setOnDescription(async ({ room, description }) => {
 
     try {
         const offerCollision = description.type === 'offer' && (makingOffer || pc.signalingState !== 'stable');
-
-        console.log(offerCollision);
 
         // Ignore offer if impolite when collision occurs
         ignoreOffer = !signaler.polite && offerCollision;
@@ -78,9 +76,16 @@ signaler.setOnCandidate(async ({ candidate }) => {
     }
 });
 
+
 // P2P messaging
+const sendChannel = pc.createDataChannel('morse');
+const player = new MorsePlayer();
+player.start();
+
 sendBtn.onclick = () => {
-    sendChannel.send(messageInput.value);
+    if (sendChannel.readyState === 'open') {
+        sendChannel.send(messageInput.value);
+    }
 }
 pc.ondatachannel = e => {
 
@@ -88,5 +93,7 @@ pc.ondatachannel = e => {
 
     receiveChannel.onmessage = e => {
         console.log(e.data);
+        player.play(e.data);
     }
-} 
+}
+

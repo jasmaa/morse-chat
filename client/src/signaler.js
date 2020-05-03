@@ -1,9 +1,14 @@
 import io from 'socket.io-client';
 
+const baseURL = 'http://localhost:3000';
+
+/**
+ * Signaling server client
+ */
 export default class Signaler {
 
     constructor() {
-        this.socket = io('http://localhost:3000');
+        this.socket = io(baseURL);
 
         this.socket.on('connect', () => {
             console.log('connected!');
@@ -13,9 +18,6 @@ export default class Signaler {
         });
 
         this.socket.on('join', data => {
-
-            console.log(data);
-
             if (data.isJoin) {
                 this.polite = data.polite;
             }
