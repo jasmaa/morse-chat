@@ -5,19 +5,22 @@ module.exports = {
     entry: './src/index.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js'
+        filename: 'bundle.js',
+    },
+    resolve: {
+        modules: [__dirname, 'node_modules'],
     },
     module: {
         rules: [
             {
                 test: /\.css$/,
-                use: ['style-loader', 'css-loader']
+                use: ['style-loader', 'css-loader'],
             },
             {
                 test: /\.(js|jsx)$/,
                 exclude: /node_modules/,
                 use: {
-                    loader: "babel-loader"
+                    loader: "babel-loader",
                 }
             }
         ]
@@ -25,7 +28,7 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             title: 'Morse WebRTC',
-            template: 'public/index.html'
+            template: 'public/index.html',
         })
-    ]
+    ],
 };
