@@ -3,7 +3,7 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io').listen(server);
 
-const PORT = 3000
+const PORT = 3001
 
 io.sockets.on('connection', socket => {
 

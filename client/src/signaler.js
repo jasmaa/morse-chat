@@ -1,6 +1,6 @@
 import io from 'socket.io-client';
 
-const baseURL = 'http://localhost:3000';
+const baseURL = 'http://localhost:3001';
 
 /**
  * Signaling server client
