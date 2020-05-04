@@ -18,6 +18,9 @@ export default class Signaler {
         });
 
         this.socket.on('join', data => {
+
+            console.log(data);
+
             if (data.isJoin) {
                 this.polite = data.polite;
             }

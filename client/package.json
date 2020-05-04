@@ -4,7 +4,12 @@
     "build": "node_modules/.bin/webpack"
   },
   "dependencies": {
-    "socketio": "^1.0.0"
+    "bootstrap": "^4.4.1",
+    "css-loader": "^3.5.3",
+    "jquery": "^3.5.0",
+    "popper.js": "^1.16.1",
+    "socketio": "^1.0.0",
+    "style-loader": "^1.2.1"
   },
   "devDependencies": {
     "html-webpack-plugin": "^4.2.0",

@@ -1,11 +1,22 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 import Signaler from './signaler';
 import MorsePlayer from './morse';
 
 // UI
 const roomInput = document.getElementById('roomInput');
 const connectBtn = document.getElementById('connectBtn');
+const connectSpinner = document.getElementById('connectSpinner');
+
 const messageInput = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
+
+// init UI
+roomInput.style.display = '';
+connectBtn.style.display = '';
+connectSpinner.style.display = 'none';
+messageInput.style.display = 'none';
+sendBtn.style.display = 'none';
 
 // WebRTC
 const servers = null;
@@ -24,6 +35,9 @@ connectBtn.onclick = async () => {
         makingOffer = true;
         await pc.setLocalDescription();
         signaler.sendDescription(roomInput.value, pc.localDescription);
+
+        connectSpinner.style.display = '';
+
     } catch (err) {
         console.error(err);
     } finally {
@@ -81,6 +95,18 @@ signaler.setOnCandidate(async ({ candidate }) => {
 const sendChannel = pc.createDataChannel('morse');
 const player = new MorsePlayer();
 player.start();
+
+sendChannel.onopen = () => {
+    roomInput.style.display = 'none';
+    connectBtn.style.display = 'none';
+    connectSpinner.style.display = 'none';
+    messageInput.style.display = 'block';
+    sendBtn.style.display = 'block';
+}
+sendChannel.onclose = () => {
+    // Reload on P2P disconnect
+    window.location.reload();
+}
 
 sendBtn.onclick = () => {
     if (sendChannel.readyState === 'open') {
