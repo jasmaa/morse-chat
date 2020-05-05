@@ -21,6 +21,9 @@ const Room = props => {
     const roomName = props.roomName;
     const [roomState, setRoomState] = useState('init');
 
+    console.log(roomName);
+
+
     // Init WebRTC
     if (roomState === 'init') {
 

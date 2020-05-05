@@ -1,9 +1,18 @@
+const path = require('path');
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io').listen(server);
 
 const PORT = 3001
+
+app.get('/*', (req, res) => {
+    res.sendFile(path.join(__dirname, '/dist/index.html'), err => {
+        if (err) {
+            res.status(500).send(err)
+        }
+    })
+})
 
 io.sockets.on('connection', socket => {
 

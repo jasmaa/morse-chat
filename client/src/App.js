@@ -1,12 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter, Route, Switch } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+import Home from 'src/screens/Home';
 import Room from 'src/screens/Room';
 
 const App = () => {
-    // TODO: Add routing
     return (
-        <Room roomName="hello"/>
+        <BrowserRouter>
+            <Switch>
+                <Route
+                    exact
+                    path="/"
+                    render={() => <Home />}
+                />
+                <Route
+                    path="/:roomName"
+                    render={({ match }) => <Room roomName={match.params.roomName} />}
+                />
+            </Switch>
+        </BrowserRouter>
     );
 }
 
