@@ -1,6 +1,6 @@
 import io from 'socket.io-client';
 
-const baseURL = 'http://localhost:3001';
+const baseURL = process.env.NODE_ENV === 'production' ? '/' : 'http://localhost:3001';
 
 /**
  * Signaling server client
