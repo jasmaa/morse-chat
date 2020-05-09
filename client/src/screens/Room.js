@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import Loading from 'src/components/Loading';
 import Clicker from 'src/components/Clicker';
+import MessageLog from 'src/components/MessageLog';
 import Signaler from 'src/utils/signaler';
 import MorsePlayer from 'src/utils/morse';
 
@@ -16,15 +17,25 @@ let ignoreOffer = false;
 const sendChannel = pc.createDataChannel('morse');
 const player = new MorsePlayer();
 
-
+/**
+ * Room
+ * @param {*} props 
+ */
 const Room = props => {
 
     const roomName = props.roomName;
     const [roomState, setRoomState] = useState('init');
-    const [message, setMessage] = useState('');
+    const [log, setLog] = useState([]);
 
-    console.log(roomName);
-
+    const updateLog = v => {
+        setLog(data => {
+            const l = [...data, v];
+            if (l.length > 5) {
+                l.shift();
+            }
+            return l;
+        });
+    }
 
     // Init WebRTC
     if (roomState === 'init') {
@@ -100,9 +111,11 @@ const Room = props => {
             const receiveChannel = e.channel;
 
             receiveChannel.onmessage = e => {
-                console.log(e.data);
-                player.play(e.data);
-                setMessage(e.data)
+
+                // TEMP: disable for now
+                //player.play(e.data);
+
+                updateLog(`=> ${e.data}`);
             }
         }
 
@@ -118,9 +131,9 @@ const Room = props => {
 
     return (
         <div className="container">
-            <div className="d-flex flex-column justify-content-center align-items-center p-3">
-                <h1>{`Received: ${message}`}</h1>
-                <Clicker sendChannel={sendChannel} />
+            <div className="d-flex flex-column justify-content-center p-3">
+                <MessageLog log={log} />
+                <Clicker sendChannel={sendChannel} updateLog={updateLog} />
             </div>
         </div>
     );
