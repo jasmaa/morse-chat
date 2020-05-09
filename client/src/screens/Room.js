@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import Loading from 'src/components/Loading';
+import Clicker from 'src/components/Clicker';
 import Signaler from 'src/utils/signaler';
 import MorsePlayer from 'src/utils/morse';
 
@@ -20,6 +21,7 @@ const Room = props => {
 
     const roomName = props.roomName;
     const [roomState, setRoomState] = useState('init');
+    const [message, setMessage] = useState('');
 
     console.log(roomName);
 
@@ -100,6 +102,7 @@ const Room = props => {
             receiveChannel.onmessage = e => {
                 console.log(e.data);
                 player.play(e.data);
+                setMessage(e.data)
             }
         }
 
@@ -116,16 +119,8 @@ const Room = props => {
     return (
         <div className="container">
             <div className="d-flex flex-column justify-content-center align-items-center p-3">
-
-                <div className="d-flex align-items-center p-1">
-                    <input id="messageInput" />
-                    <div id="sendBtn" className="btn btn-primary m-1" onClick={() => {
-                        if (sendChannel.readyState === 'open') {
-                            sendChannel.send(messageInput.value);
-                        }
-                    }}>Send</div>
-                </div>
-
+                <h1>{`Received: ${message}`}</h1>
+                <Clicker sendChannel={sendChannel} />
             </div>
         </div>
     );
