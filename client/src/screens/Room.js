@@ -9,7 +9,6 @@ import MorsePlayer from 'src/utils/morse';
 // WebRTC
 const servers = null;
 const pc = new RTCPeerConnection(servers);
-const signaler = new Signaler();
 let makingOffer = false;
 let ignoreOffer = false;
 
@@ -44,7 +43,7 @@ const Room = props => {
     if (roomState === 'init') {
 
         // Offer negotiation
-        pc.onnegotiationneeded = async () => {
+        const makeOffer = async () => {
 
             signaler.sendJoin(roomName);
 
@@ -59,12 +58,8 @@ const Room = props => {
             }
         }
 
-        pc.onicecandidate = ({ candidate }) => {
-            signaler.sendCandidate(roomName, candidate);
-        }
-
         // Answer negotiation
-        signaler.setOnDescription(async ({ room, description }) => {
+        const onDescription = async ({ room, description }) => {
 
             console.log(description);
 
@@ -84,9 +79,10 @@ const Room = props => {
             } catch (err) {
                 console.error(err);
             }
-        });
+        }
 
-        signaler.setOnCandidate(async ({ candidate }) => {
+        // Adds received ICE candidate
+        const onCandidate = async ({ candidate }) => {
 
             console.log(candidate);
 
@@ -99,7 +95,25 @@ const Room = props => {
             } catch (err) {
                 console.error(err);
             }
+        }
+
+
+        const signaler = new Signaler({
+            onJoin: ({ isJoin }) => {
+                // Check if room was full
+                if (!isJoin) {
+                    setRoomState('full');
+                }
+            },
+            onDescription: onDescription,
+            onCandidate: onCandidate,
         });
+
+        pc.onnegotiationneeded = makeOffer;
+
+        pc.onicecandidate = ({ candidate }) => {
+            signaler.sendCandidate(roomName, candidate);
+        }
 
         // Messaging
         sendChannel.onopen = () => {
@@ -128,7 +142,19 @@ const Room = props => {
     }
 
     if (roomState === 'waiting') {
+
         return <Loading />
+
+    } else if (roomState === 'full') {
+
+        return (
+            <div className="container">
+                <div className="d-flex flex-column justify-content-center p-3">
+                    <h2>This room is currently unavailable. Please try another room.</h2>
+                </div>
+            </div>
+        );
+
     }
 
     return (

@@ -1,13 +1,13 @@
 import io from 'socket.io-client';
 
-const baseURL = process.env.NODE_ENV === 'production' ? '/' : 'http://localhost:3001';
+const baseURL = process.env.NODE_ENV === 'production' ? '/' : 'http://localhost:3000';
 
 /**
  * Signaling server client
  */
 export default class Signaler {
 
-    constructor() {
+    constructor({ onJoin, onDescription, onCandidate }) {
         this.socket = io(baseURL);
 
         this.socket.on('connect', () => {
@@ -19,29 +19,23 @@ export default class Signaler {
 
         this.socket.on('join', data => {
 
-            console.log(data);
-
             if (data.isJoin) {
                 this.polite = data.polite;
             }
+
+            onJoin(data);
         });
+        this.socket.on('description', onDescription);
+        this.socket.on('candidate', onCandidate);
     }
 
     sendJoin(room) {
         return this.socket.emit('join', { room });
     }
-
     sendDescription(room, description) {
         return this.socket.emit('description', { room, description });
     }
     sendCandidate(room, candidate) {
         return this.socket.emit('candidate', { room, candidate })
-    }
-
-    setOnDescription(cb) {
-        this.socket.on('description', cb);
-    }
-    setOnCandidate(cb) {
-        this.socket.on('candidate', cb);
     }
 }
