@@ -2,8 +2,10 @@ import React from 'react';
 
 const Loading = () => {
     return (
-        <div id="connectSpinner" className="spinner-border m-2" role="status">
-            <span className="sr-only">Loading...</span>
+        <div className="d-flex justify-content-center mt-5">
+            <div className="spinner-border text-light">
+                <span className="sr-only">Loading...</span>
+            </div>
         </div>
     );
 }

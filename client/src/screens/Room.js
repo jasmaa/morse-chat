@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import Loading from 'src/components/Loading';
+import RoomFull from 'src/components/RoomFull';
 import Clicker from 'src/components/Clicker';
 import MessageLog from 'src/components/MessageLog';
 import Signaler from 'src/utils/signaler';
@@ -17,7 +18,7 @@ const sendChannel = pc.createDataChannel('morse');
 const player = new MorsePlayer();
 
 /**
- * Room
+ * Room screen
  * @param {*} props 
  */
 const Room = props => {
@@ -142,26 +143,22 @@ const Room = props => {
     }
 
     if (roomState === 'waiting') {
-
         return <Loading />
-
     } else if (roomState === 'full') {
-
-        return (
-            <div className="container">
-                <div className="d-flex flex-column justify-content-center p-3">
-                    <h2>This room is currently unavailable. Please try another room.</h2>
-                </div>
-            </div>
-        );
-
+        return <RoomFull />
     }
 
     return (
-        <div className="container">
-            <div className="d-flex flex-column justify-content-center p-3">
-                <MessageLog log={log} />
-                <Clicker sendChannel={sendChannel} updateLog={updateLog} />
+        <div className="container p-3">
+            <div className="card">
+                <div className="card-body">
+
+                    <MessageLog log={log} />
+
+                    <div className="d-flex flex-column align-items-center justify-content-center m-3">
+                        <Clicker sendChannel={sendChannel} updateLog={updateLog} />
+                    </div>
+                </div>
             </div>
         </div>
     );
