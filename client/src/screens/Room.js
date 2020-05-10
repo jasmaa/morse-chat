@@ -29,7 +29,10 @@ const Room = props => {
 
     const updateLog = v => {
         setLog(data => {
-            const l = [...data, v];
+            const l = [...data, {
+                timestamp: new Date(),
+                message: v,
+            }];
             if (l.length > 5) {
                 l.shift();
             }
@@ -112,8 +115,7 @@ const Room = props => {
 
             receiveChannel.onmessage = e => {
 
-                // TEMP: disable for now
-                //player.play(e.data);
+                player.play(e.data);
 
                 updateLog(`=> ${e.data}`);
             }

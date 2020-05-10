@@ -12,4 +12,4 @@ COPY backend .
 RUN yarn install
 COPY --from=frontend /tmp/client/dist ./public
 
-ENTRYPOINT node /opt/server.js
+CMD yarn start

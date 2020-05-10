@@ -11,9 +11,10 @@ const MessageLog = props => {
     const renderLog = () => {
         const l = [];
         for (let i = 0; i < log.length; i++) {
-            l.push(<li key={i} className="list-group-item">{log[i]}</li>)
+            const { timestamp, message } = log[i];
+            l.push(<li key={i} className="list-group-item">{`${timestamp.toUTCString()} ${message}`}</li>)
         }
-    
+
         return l;
     }
 

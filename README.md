@@ -11,8 +11,13 @@ P2P Morse code with WebRTC
 
     # backend
     yarn install
-    node server.js
+    yarn start
 
 ### Docker
     docker build -t morse-chat .
-    docker run --rm -p 3001:3001 morse-chat:latest
+    docker run --rm -p 3000:3000 morse-chat:latest
+
+## Deploy to Heroku
+    heroku create <app_name>
+    heroku container:push web
+    heroku container:release web

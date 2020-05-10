@@ -4,10 +4,11 @@ let isKeyDown = false;
 let nowDown, nowUp;
 let buffer = [];
 
+// TODO: Do Farnsworth for now...
 const DOT_WAIT = 100;
-const DASH_WAIT = 400;
-const SPACE_WAIT = 300;
-const SEND_WAIT = 600;
+const DASH_WAIT = 3 * DOT_WAIT;
+const LETTER_WAIT = 3 * DOT_WAIT;
+const SEND_WAIT = 7 * DOT_WAIT;
 
 let timer;
 
@@ -21,7 +22,6 @@ const Clicker = props => {
 
     const [message, setMessage] = useState('');
 
-
     useEffect(() => {
         document.addEventListener("keydown", e => {
             if (e.keyCode === 32 && !isKeyDown) {
@@ -30,7 +30,7 @@ const Clicker = props => {
                 nowDown = new Date();
                 const diff = nowDown - nowUp;
 
-                if (diff > SPACE_WAIT) {
+                if (diff > LETTER_WAIT) {
                     buffer.push(' ');
                     setMessage(data => data + ' ');
                 }
@@ -64,7 +64,7 @@ const Clicker = props => {
 
                     buffer = [];
                     setMessage('');
-                    updateLog(`>= ${bufferMsg}`)
+                    updateLog(`<= ${bufferMsg}`)
                 }
             }, SEND_WAIT);
 

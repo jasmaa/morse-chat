@@ -4,8 +4,6 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io').listen(server);
 
-const PORT = process.env.PORT ? process.env.PORT : 3001;
-
 app.use(express.static('public'));
 
 app.get('/*', (req, res) => {
@@ -15,6 +13,7 @@ app.get('/*', (req, res) => {
         }
     })
 })
+
 
 io.sockets.on('connection', socket => {
 
@@ -62,5 +61,7 @@ io.sockets.on('connection', socket => {
         console.log(`${socket.id} disconnected!`);
     });
 });
+
+const PORT =  process.env.PORT || 3000;
 
 server.listen(PORT, () => console.log(`Start server on port ${PORT}...`));

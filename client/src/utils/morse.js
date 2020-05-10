@@ -1,4 +1,10 @@
 
+// TODO: Do Farnsworth for now...
+const DOT_WAIT = 0.1;
+const DASH_WAIT = 3 * DOT_WAIT;
+
+// TODO: Fix audio
+
 /**
  * Plays morse code
  */
@@ -26,19 +32,19 @@ export default class MorsePlayer {
         for (const c of data) {
             if (c === '.') {
                 this.oscillator.frequency.setValueAtTime(440, currTime);
-                currTime += 0.1;
+                currTime += DOT_WAIT;
 
                 this.oscillator.frequency.setValueAtTime(0, currTime);
-                currTime += 0.1
+                currTime += DOT_WAIT;
             } else if (c === '-') {
                 this.oscillator.frequency.setValueAtTime(440, currTime);
-                currTime += 0.2;
+                currTime += DASH_WAIT;
 
                 this.oscillator.frequency.setValueAtTime(0, currTime);
-                currTime += 0.1
+                currTime += DOT_WAIT
             } else if (c === ' ') {
                 this.oscillator.frequency.setValueAtTime(0, currTime);
-                currTime += 0.1
+                currTime += DOT_WAIT;
             }
         }
     }
